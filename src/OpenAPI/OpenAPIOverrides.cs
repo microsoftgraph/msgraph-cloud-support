@@ -59,13 +59,15 @@ public static class OpenAPIOverrides
 
     private static void LoadOverridesFromJson()
     {
-        var json = File.ReadAllText("overrides.json");
+        var overrideFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "overrides.json");
+        var json = File.ReadAllText(overrideFilePath);
         overrides = JsonSerializer.Deserialize<List<Override>>(json);
     }
 
     private static void LoadCloudExclusionsFromJson()
     {
-        var json = File.ReadAllText("cloud-exclusions.json");
+        var exclusionFilePath = Path.Join(AppDomain.CurrentDomain.BaseDirectory, "cloud-exclusions.json");
+        var json = File.ReadAllText(exclusionFilePath);
         cloudExclusions = JsonSerializer.Deserialize<List<CloudExclusion>>(json);
     }
 }
