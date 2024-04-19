@@ -1,0 +1,70 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run against v1.0",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/src/bin/Debug/net8.0/CheckCloudSupport.dll",
+      "args": [
+        "--open-api",
+        "C:/Source/Repos/msgraph-metadata/schemas/openapi/v1.0",
+        "--api-docs",
+        "C:/Source/Repos/microsoft-graph-docs/api-reference/v1.0/api",
+        "--out-file",
+        "./unprocessedfiles.txt",
+        "--remove-old-includes"
+      ],
+      "cwd": "${workspaceFolder}/src",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "stopAtEntry": false,
+    },
+    {
+      "name": "Run against beta",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/src/bin/Debug/net8.0/CheckCloudSupport.dll",
+      "args": [
+        "--open-api",
+        "C:/Source/Repos/msgraph-metadata/schemas/openapi/beta",
+        "--api-docs",
+        "C:/Source/Repos/microsoft-graph-docs/api-reference/beta/api",
+        "--out-file",
+        "./unprocessedfiles.txt",
+        "--remove-old-includes"
+      ],
+      "cwd": "${workspaceFolder}/src",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "stopAtEntry": false,
+    },
+    {
+      "name": "Debug help command",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/src/bin/Debug/net8.0/CheckCloudSupport.dll",
+      "args": [
+        "--help"
+      ],
+      "cwd": "${workspaceFolder}/src",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "stopAtEntry": false,
+    },
+    {
+      "name": ".NET Core Attach",
+      "type": "coreclr",
+      "request": "attach"
+    }
+  ]
+}
