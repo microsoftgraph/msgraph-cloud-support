@@ -170,6 +170,46 @@
     "cloud": "China"
   },
   {
+    "apiPath": "/users/{user-id}/teamwork/associatedTeams",
+    "operation": "GET",
+    "cloud": "China"
+  },
+  {
+    "apiPath": "/teams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}/allowedMembers",
+    "operation": "GET",
+    "cloud": "China"
+  },
+  {
+    "apiPath": "/teams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}",
+    "operation": "DELETE",
+    "cloud": "China"
+  },
+  {
+    "apiPath": "/teams/{team-id}/channels/{channel-id}/sharedWithTeams/{sharedWithChannelTeamInfo-id}",
+    "operation": "GET",
+    "cloud": "China"
+  },
+  {
+    "apiPath": "/teams/{team-id}/channels/{channel-id}/sharedWithTeams",
+    "operation": "GET",
+    "cloud": "China"
+  },
+  {
+    "apiPath": "/teams/{team-id}/incomingChannels/{channel-id}/$ref",
+    "operation": "DELETE",
+    "cloud": "China"
+  },
+  {
+    "apiPath": "/teams/{team-id}/allChannels",
+    "operation": "GET",
+    "cloud": "China"
+  },
+  {
+    "apiPath": "/teams/{team-id}/incomingChannels",
+    "operation": "GET",
+    "cloud": "China"
+  },
+  {
     "apiPath": "/teams/{team-id}/channels/{channel-id}/provisionEmail",
     "operation": "POST",
     "cloud": "UsGov"
