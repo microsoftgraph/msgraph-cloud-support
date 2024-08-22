@@ -5,6 +5,7 @@ using System.CommandLine;
 using CheckCloudSupport;
 using CheckCloudSupport.Docs;
 using CheckCloudSupport.Extensions;
+using CheckCloudSupport.OpenAPI;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Readers;
 using Microsoft.OpenApi.Services;
@@ -19,6 +20,18 @@ var apiDocsOption = new Option<string>(["--api-docs", "-a"])
 {
     Description = "The path to a folder containing the API docs",
     IsRequired = true,
+};
+
+var overridesFileOption = new Option<string>("--overrides", "-d")
+{
+    Description = "The path to a JSON file containing API overrides",
+    IsRequired = false,
+};
+
+var excludesFileOption = new Option<string>("--excludes", "-e")
+{
+    Description = "The path to a JSON file containing cloud exclusions",
+    IsRequired = false,
 };
 
 var batchOption = new Option<int>(["--batch-size", "-b"])
@@ -48,6 +61,8 @@ var verboseOption = new Option<bool>(["--verbose", "-v"])
 var rootCommand = new RootCommand();
 rootCommand.AddOption(openApiOption);
 rootCommand.AddOption(apiDocsOption);
+rootCommand.AddOption(overridesFileOption);
+rootCommand.AddOption(excludesFileOption);
 rootCommand.AddOption(batchOption);
 rootCommand.AddOption(outFileOption);
 rootCommand.AddOption(removeOldIncludesOption);
@@ -59,6 +74,8 @@ rootCommand.SetHandler(async (context) =>
         throw new ArgumentException("The --open-api option cannot be empty.");
     var docsFolder = context.ParseResult.GetValueForOption(apiDocsOption) ??
         throw new ArgumentException("The --api-docs option cannot be empty.");
+    var overridesFile = context.ParseResult.GetValueForOption(overridesFileOption);
+    var excludesFile = context.ParseResult.GetValueForOption(excludesFileOption);
     var batchSize = context.ParseResult.GetValueForOption(batchOption);
     var outFile = context.ParseResult.GetValueForOption(outFileOption);
     var removeOldIncludes = context.ParseResult.GetValueForOption(removeOldIncludesOption);
@@ -73,6 +90,10 @@ rootCommand.SetHandler(async (context) =>
     {
         OutputLogger.Logger?.LogInformation("Batching with batch size: {batchSize}", batchSize);
     }
+
+    OutputLogger.Logger?.LogInformation("API overrides file: {overrides}", overridesFile ?? "NONE");
+    OutputLogger.Logger?.LogInformation("Cloud exclusions file: {excludes}", excludesFile ?? "NONE");
+    OpenAPIOverrides.Initialize(overridesFile, excludesFile);
 
     Dictionary<string, string>? unProcessedFiles = null;
     if (!string.IsNullOrEmpty(outFile))
