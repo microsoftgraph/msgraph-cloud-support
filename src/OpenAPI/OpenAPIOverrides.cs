@@ -32,10 +32,10 @@ public static class OpenAPIOverrides
     /// <returns>The override path.</returns>
     public static string CheckForOverride(string originalPath, HttpMethod? method)
     {
-        var apiOverride = overrides?.SingleOrDefault(o => o.ApiPath?.ToLower() == originalPath.ToLower());
+        var apiOverride = overrides?.SingleOrDefault(o => string.Compare(o.ApiPath?.ToLower(), originalPath.ToLower()) == 0);
         if (!string.IsNullOrEmpty(apiOverride?.Operation) &&
             method != null &&
-            string.Compare(apiOverride.Operation, method.Method, StringComparison.InvariantCultureIgnoreCase) != 0)
+            string.Compare(apiOverride.Operation, method.Method, StringComparison.OrdinalIgnoreCase) != 0)
         {
             return originalPath;
         }
