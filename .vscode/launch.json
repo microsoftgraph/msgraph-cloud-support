@@ -14,9 +14,9 @@
         "--api-docs",
         "C:/Source/Repos/microsoft-graph-docs/api-reference/v1.0/api",
         "--overrides",
-        "C:/Source/Repos/msgraph-cloud-support/src/overrides.json",
+        "C:/Source/Repos/microsoft-graph-docs/api-reference/cloud.api.overrides.json",
         "--excludes",
-        "C:/Source/Repos/msgraph-cloud-support/src/cloud-exclusions.json",
+        "C:/Source/Repos/microsoft-graph-docs/api-reference/cloud.exclusions.json",
         "--out-file",
         "./unprocessedfiles.txt",
         "--remove-old-includes"
