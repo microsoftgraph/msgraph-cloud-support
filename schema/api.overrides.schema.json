@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/microsoftgraph/msgraph-cloud-support/schema/api.overrides.schema.json",
+  "title": "Microsoft Graph cloud support API overrides schema",
+  "definitions": {
+    "apiOverride": {
+      "type": "object",
+      "properties": {
+        "apiPath": {
+          "description": "The API path to override. This path should match the path that appears in the reference documentation.",
+          "type":"string"
+        },
+        "overridePath": {
+          "description": "The API path to use. This path should match the path in the OpenAPI document.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "apiPath",
+        "operation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/apiOverride"
+  }
+}

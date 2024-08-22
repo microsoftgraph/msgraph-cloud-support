@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/microsoftgraph/msgraph-cloud-support/schema/cloud.exclusions.schema.json",
+  "title": "Microsoft Graph cloud support exclusions schema",
+  "definitions": {
+    "cloudExclusion": {
+      "type": "object",
+      "properties": {
+        "apiPath": {
+          "description": "The API path for the API to exclude. This path should match the path from the OpenAPI document.",
+          "type":"string"
+        },
+        "operation": {
+          "description": "The HTTP method for the API to exclude.",
+          "type": "string"
+        },
+        "cloud": {
+          "description": "The cloud to exclude this API from. Must be 'Global', 'UsGov', or 'China'.",
+          "type": "string",
+          "enum": [
+            "Global",
+            "UsGov",
+            "China"
+          ]
+        }
+      },
+      "required": [
+        "apiPath",
+        "operation",
+        "cloud"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/cloudExclusion"
+  }
+}
