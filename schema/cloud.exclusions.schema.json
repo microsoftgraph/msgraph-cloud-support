@@ -1,8 +1,8 @@
 {
-  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/microsoftgraph/msgraph-cloud-support/schema/cloud.exclusions.schema.json",
   "title": "Microsoft Graph cloud support exclusions schema",
-  "definitions": {
+  "$defs": {
     "cloudExclusion": {
       "type": "object",
       "properties": {
@@ -34,6 +34,6 @@
   },
   "type": "array",
   "items": {
-    "$ref": "#/definitions/cloudExclusion"
+    "$ref": "#/$defs/cloudExclusion"
   }
 }
