@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     <PackageReference Include="Microsoft.OpenApi" Version="1.6.23" />
     <PackageReference Include="Microsoft.OpenApi.OData" Version="1.6.8" />
-    <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.22" />
+    <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.23" />
     <PackageReference Include="Stylecop.Analyzers" Version="1.2.0-beta.556">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
