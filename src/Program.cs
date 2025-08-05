@@ -123,7 +123,10 @@ rootCommand.SetAction(async (result, cancellationToken) =>
     foreach (var cloud in v1Clouds)
     {
         var fileStream = File.OpenRead(cloud.Value);
-        var loadResult = await OpenApiDocument.LoadAsync(fileStream, settings: readerSettings);
+        var loadResult = await OpenApiDocument.LoadAsync(
+            fileStream,
+            settings: readerSettings,
+            cancellationToken: cancellationToken);
         ArgumentNullException.ThrowIfNull(loadResult.Document);
         openApiTreeNode.Attach(loadResult.Document, cloud.Key);
     }
