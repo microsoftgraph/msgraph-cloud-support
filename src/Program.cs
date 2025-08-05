@@ -7,79 +7,82 @@ using CheckCloudSupport.Docs;
 using CheckCloudSupport.Extensions;
 using CheckCloudSupport.OpenAPI;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Readers;
-using Microsoft.OpenApi.Services;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
+using Microsoft.OpenApi.YamlReader;
 
-var openApiOption = new Option<string>(["--open-api", "-o"])
+var openApiOption = new Option<string>("--open-api", "-o")
 {
     Description = "The path to a folder containing the OpenAPI descriptions",
-    IsRequired = true,
+    Required = true,
 };
 
-var apiDocsOption = new Option<string>(["--api-docs", "-a"])
+var apiDocsOption = new Option<string>("--api-docs", "-a")
 {
     Description = "The path to a folder containing the API docs",
-    IsRequired = true,
+    Required = true,
 };
 
 var overridesFileOption = new Option<string>("--overrides", "-d")
 {
     Description = "The path to a JSON file containing API overrides",
-    IsRequired = false,
+    Required = false,
 };
 
 var excludesFileOption = new Option<string>("--excludes", "-e")
 {
     Description = "The path to a JSON file containing cloud exclusions",
-    IsRequired = false,
+    Required = false,
 };
 
-var batchOption = new Option<int>(["--batch-size", "-b"])
+var batchOption = new Option<int>("--batch-size", "-b")
 {
     Description = "If specified, process will pause after the specified size, allowing you to modify docs in batches",
-    IsRequired = false,
+    Required = false,
 };
 
-var outFileOption = new Option<string>(["--out-file", "-f"])
+var outFileOption = new Option<string>("--out-file", "-f")
 {
     Description = "If specified, all files that were not processed are logged to this file",
-    IsRequired = false,
+    Required = false,
 };
 
-var removeOldIncludesOption = new Option<bool>(["--remove-old-includes", "-r"])
+var removeOldIncludesOption = new Option<bool>("--remove-old-includes", "-r")
 {
     Description = "If specified, existing INCLUDE placement is ignored",
-    IsRequired = false,
+    Required = false,
 };
 
-var verboseOption = new Option<bool>(["--verbose", "-v"])
+var verboseOption = new Option<bool>("--verbose", "-v")
 {
     Description = "Verbose logging",
-    IsRequired = false,
+    Required = false,
 };
 
-var rootCommand = new RootCommand();
-rootCommand.AddOption(openApiOption);
-rootCommand.AddOption(apiDocsOption);
-rootCommand.AddOption(overridesFileOption);
-rootCommand.AddOption(excludesFileOption);
-rootCommand.AddOption(batchOption);
-rootCommand.AddOption(outFileOption);
-rootCommand.AddOption(removeOldIncludesOption);
-rootCommand.AddOption(verboseOption);
-
-rootCommand.SetHandler(async (context) =>
+var rootCommand = new RootCommand()
 {
-    var openApiFolder = context.ParseResult.GetValueForOption(openApiOption) ??
+    openApiOption,
+    apiDocsOption,
+    overridesFileOption,
+    excludesFileOption,
+    batchOption,
+    outFileOption,
+    removeOldIncludesOption,
+    verboseOption,
+};
+
+rootCommand.SetAction(async (result, cancellationToken) =>
+{
+    var openApiFolder = result.GetValue(openApiOption) ??
         throw new ArgumentException("The --open-api option cannot be empty.");
-    var docsFolder = context.ParseResult.GetValueForOption(apiDocsOption) ??
+    var docsFolder = result.GetValue(apiDocsOption) ??
         throw new ArgumentException("The --api-docs option cannot be empty.");
-    var overridesFile = context.ParseResult.GetValueForOption(overridesFileOption);
-    var excludesFile = context.ParseResult.GetValueForOption(excludesFileOption);
-    var batchSize = context.ParseResult.GetValueForOption(batchOption);
-    var outFile = context.ParseResult.GetValueForOption(outFileOption);
-    var removeOldIncludes = context.ParseResult.GetValueForOption(removeOldIncludesOption);
-    var verbose = context.ParseResult.GetValueForOption(verboseOption);
+    var overridesFile = result.GetValue(overridesFileOption);
+    var excludesFile = result.GetValue(excludesFileOption);
+    var batchSize = result.GetValue(batchOption);
+    var outFile = result.GetValue(outFileOption);
+    var removeOldIncludes = result.GetValue(removeOldIncludesOption);
+    var verbose = result.GetValue(verboseOption);
 
     OutputLogger.Initialize(verbose);
 
@@ -98,7 +101,7 @@ rootCommand.SetHandler(async (context) =>
     Dictionary<string, string>? unProcessedFiles = null;
     if (!string.IsNullOrEmpty(outFile))
     {
-        unProcessedFiles = new Dictionary<string, string>();
+        unProcessedFiles = [];
         File.Delete(outFile);
     }
 
@@ -114,13 +117,15 @@ rootCommand.SetHandler(async (context) =>
 
     // Create OpenAPI tree node
     var openApiTreeNode = OpenApiUrlTreeNode.Create();
-    var reader = new OpenApiStreamReader();
+    var readerSettings = new OpenApiReaderSettings();
+    readerSettings.AddYamlReader();
 
     foreach (var cloud in v1Clouds)
     {
         var fileStream = File.OpenRead(cloud.Value);
-        var doc = await reader.ReadAsync(fileStream);
-        openApiTreeNode.Attach(doc.OpenApiDocument, cloud.Key);
+        var loadResult = await OpenApiDocument.LoadAsync(fileStream, settings: readerSettings);
+        ArgumentNullException.ThrowIfNull(loadResult.Document);
+        openApiTreeNode.Attach(loadResult.Document, cloud.Key);
     }
 
     var processedCount = 0;
@@ -194,4 +199,4 @@ rootCommand.SetHandler(async (context) =>
     unProcessedFiles?.Clear();
 });
 
-Environment.Exit(await rootCommand.InvokeAsync(args));
+Environment.Exit(await rootCommand.Parse(args).InvokeAsync());

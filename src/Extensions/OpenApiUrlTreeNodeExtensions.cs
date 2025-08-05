@@ -3,8 +3,7 @@
 
 using CheckCloudSupport.Docs;
 using CheckCloudSupport.OpenAPI;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Services;
+using Microsoft.OpenApi;
 
 namespace CheckCloudSupport.Extensions;
 
@@ -87,18 +86,23 @@ public static class OpenApiUrlTreeNodeExtensions
     /// <returns>The <see cref="CloudSupportStatus"/> indicating the cloud support status of the API.</returns>
     public static CloudSupportStatus GetCloudSupportStatus(this OpenApiUrlTreeNode node, HttpMethod? method)
     {
-        if (node.Path.EndsWith("\\bundles\\{driveItem-id}"))
+        if (method == null)
         {
-            method = HttpMethod.Get;
+            return CloudSupportStatus.Unknown;
         }
 
+        if (node.Path.EndsWith("\\bundles\\{driveItem-id}"))
+            {
+                method = HttpMethod.Get;
+            }
+
         var supportsGlobal = node.PathItems.ContainsKey("Global") &&
-            node.PathItems["Global"].Operations.ContainsKey(HttpMethodToOperationType(method));
+            (node.PathItems["Global"].Operations?.ContainsKey(method) ?? false);
         var supportsUsGov = node.PathItems.ContainsKey("UsGov") &&
-            node.PathItems["UsGov"].Operations.ContainsKey(HttpMethodToOperationType(method)) &&
+            (node.PathItems["UsGov"].Operations?.ContainsKey(method) ?? false) &&
             !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "UsGov");
         var supportsChina = node.PathItems.ContainsKey("China") &&
-            node.PathItems["China"].Operations.ContainsKey(HttpMethodToOperationType(method)) &&
+            (node.PathItems["China"].Operations?.ContainsKey(method) ?? false) &&
             !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "China");
 
         if (!supportsGlobal)
@@ -118,10 +122,5 @@ public static class OpenApiUrlTreeNodeExtensions
         }
 
         return supportsUsGov ? CloudSupportStatus.GlobalAndUSGov : CloudSupportStatus.GlobalAndChina;
-    }
-
-    private static OperationType HttpMethodToOperationType(HttpMethod? method)
-    {
-        return (OperationType)Enum.Parse(typeof(OperationType), method?.Method ?? "Get", true);
     }
 }
