@@ -7,7 +7,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/src/bin/Debug/net8.0/CheckCloudSupport.dll",
+      "program": "${workspaceFolder}/src/bin/Debug/net9.0/CheckCloudSupport.dll",
       "args": [
         "--open-api",
         "C:/Source/Repos/msgraph-metadata/schemas/openapi/v1.0",
@@ -33,7 +33,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/src/bin/Debug/net8.0/CheckCloudSupport.dll",
+      "program": "${workspaceFolder}/src/bin/Debug/net9.0/CheckCloudSupport.dll",
       "args": [
         "--open-api",
         "C:/Source/Repos/msgraph-metadata/schemas/openapi/beta",
@@ -59,7 +59,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/src/bin/Debug/net8.0/CheckCloudSupport.dll",
+      "program": "${workspaceFolder}/src/bin/Debug/net9.0/CheckCloudSupport.dll",
       "args": [
         "--help"
       ],
