@@ -15,9 +15,9 @@
   <ItemGroup>
     <PackageReference Include="Markdig" Version="0.42.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
-    <PackageReference Include="Microsoft.OpenApi" Version="2.3.2" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.3.3" />
     <PackageReference Include="Microsoft.OpenApi.OData" Version="2.0.0" />
-    <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.3.2" />
+    <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.3.3" />
     <PackageReference Include="Stylecop.Analyzers" Version="1.2.0-beta.556">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
