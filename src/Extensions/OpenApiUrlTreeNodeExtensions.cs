@@ -35,29 +35,45 @@ public static class OpenApiUrlTreeNodeExtensions
         OpenApiUrlTreeNode result = parentNode;
         foreach (var segment in pathParts)
         {
+            var segmentToMatch = segment;
             OpenApiUrlTreeNode? nextNode = null;
 
-            if (segment == "{id}")
+            if (segmentToMatch == "{id}")
             {
                 nextNode = result.Children.FirstOrDefault(c => c.Value.Segment.StartsWith('{') &&
                     c.Value.Segment.EndsWith('}') && c.Value.Segment.Contains("id", StringComparison.InvariantCultureIgnoreCase)).Value;
             }
             else
             {
-                var matchNodes = result.Children.Where(c => c.Value.Segment.IsEqualIgnoringCase(segment) ||
-                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segment}") ||
-                    c.Value.Segment.IsEqualIgnoringCase($"{segment}()") ||
-                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segment}()"));
+                var matchNodes = result.Children.Where(c => c.Value.Segment.IsEqualIgnoringCase(segmentToMatch) ||
+                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segmentToMatch}") ||
+                    c.Value.Segment.IsEqualIgnoringCase($"{segmentToMatch}()") ||
+                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segmentToMatch}()"));
+
+                if (matchNodes?.Count() == 0 &&
+                    segmentToMatch.StartsWith("microsoft.graph", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // OpenAPI docs sometimes leave off the "microsoft." prefix
+                    var trimmedSegment = segmentToMatch.Replace("microsoft.", string.Empty, StringComparison.InvariantCultureIgnoreCase);
+
+                    matchNodes = result.Children.Where(c => c.Value.Segment.IsEqualIgnoringCase(trimmedSegment) ||
+                    c.Value.Segment.IsEqualIgnoringCase($"{trimmedSegment}()"));
+
+                    if (matchNodes?.Count() >= 1)
+                    {
+                        segmentToMatch = trimmedSegment;
+                    }
+                }
 
                 if (matchNodes?.Count() > 1)
                 {
                     var matchCount = matchNodes.Count();
                 }
 
-                nextNode = result.Children.FirstOrDefault(c => c.Value.Segment.IsEqualIgnoringCase(segment) ||
-                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segment}")).Value ??
-                    result.Children.FirstOrDefault(c => c.Value.Segment.IsEqualIgnoringCase($"{segment}()") ||
-                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segment}()")).Value;
+                nextNode = result.Children.FirstOrDefault(c => c.Value.Segment.IsEqualIgnoringCase(segmentToMatch) ||
+                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segmentToMatch}")).Value ??
+                    result.Children.FirstOrDefault(c => c.Value.Segment.IsEqualIgnoringCase($"{segmentToMatch}()") ||
+                    c.Value.Segment.IsEqualIgnoringCase($"{graphNamespace}.{segmentToMatch}()")).Value;
             }
 
             if (nextNode == null)
