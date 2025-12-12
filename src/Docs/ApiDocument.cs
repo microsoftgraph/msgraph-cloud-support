@@ -168,7 +168,7 @@ public class ApiDocument
             var descendantCodeBlocks = block.Descendants<FencedCodeBlock>();
             if (descendantCodeBlocks.Any())
             {
-                ApiOperations ??= new List<ApiOperation>();
+                ApiOperations ??= [];
 
                 foreach (var descendantBlock in descendantCodeBlocks)
                 {
