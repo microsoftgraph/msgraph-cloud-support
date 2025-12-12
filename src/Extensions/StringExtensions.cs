@@ -11,6 +11,18 @@ namespace CheckCloudSupport.Extensions;
 public static partial class StringExtensions
 {
     /// <summary>
+    /// Makes API path relative to version segment.
+    /// </summary>
+    /// <param name="path">The API path to make relative.</param>
+    /// <returns>The API path relative to the version segment.</returns>
+    public static string MakePathRelativeToVersion(this string path)
+    {
+        return path.Replace("https://graph.microsoft.com", string.Empty)
+            .Replace("/v1.0/", "/")
+            .Replace("/beta/", "/");
+    }
+
+    /// <summary>
     /// Normalizes id segments in API paths.
     /// </summary>
     /// <param name="path">The API path to normalize.</param>
