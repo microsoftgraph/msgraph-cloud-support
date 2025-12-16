@@ -4,6 +4,13 @@ namespace CheckCloudSupportTests;
 
 public class ApiDocumentTests
 {
+    public static TheoryData<string, string, string> RelativePathData => new()
+    {
+        {"C:/Source/Repos/microsoft-graph-docs/api-reference/v1.0/api\\accesspackage-delete-incompatibleaccesspackage.md", "../../includes", "../../includes"},
+        {"C:/Source/Repos/m365copilot-docs-pr/docs/api\\admin-settings\\copilotadminlimitedmode-get.md", "C:/Source/Repos/m365copilot-docs-pr/docs/api/includes", "../includes"},
+        {"C:/Source/Repos/m365copilot-docs-pr/docs/api\\admin-settings\\reports\\copilotreportroot-getmicrosoft365copilotusageuserdetail.md", "C:/Source/Repos/m365copilot-docs-pr/docs/api/includes", "../../includes"},
+    };
+
     [Fact]
     public async Task CreateFromMarkdownFile_LoadsGraphApiFileCorrectly()
     {
@@ -42,9 +49,52 @@ public class ApiDocumentTests
         // Assert
         Assert.NotNull(apiDocument);
         Assert.Equal(testFilePath, apiDocument.FilePath);
+        Assert.True(apiDocument.ZonePivotsEnabled);
         Assert.Null(apiDocument.GraphNameSpace);
-        Assert.Single(apiDocument.ApiOperations,
-            op => string.Compare("/copilot/users/{id}/onlineMeetings/{id}/aiInsights/{id}", op.Path, StringComparison.OrdinalIgnoreCase) == 0
+        Assert.Collection(apiDocument.ApiOperations,
+            op => { Assert.Equal("/copilot/users/{id}/onlineMeetings/{id}/aiInsights/{id}", op.Path); Assert.Equal(ApiVersion.V1, op.Version); },
+            op => { Assert.Equal("/copilot/users/{id}/onlineMeetings/{id}/aiInsights/{id}", op.Path); Assert.Equal(ApiVersion.Beta, op.Version); }
         );
+    }
+
+    [Fact]
+    public async Task NonPivotIncludesRemoveCorrectly()
+    {
+        // Arrange
+        var testFilePath = "../../../test-data/graph-api-with-includes.md";
+        var lines = new List<string>(await File.ReadAllLinesAsync(testFilePath));
+
+        // Act
+        var insertIndex = ApiDocument.RemoveAllIncludeLines(lines);
+
+        // Assert
+        Assert.Equal(28, insertIndex);
+        Assert.DoesNotContain(lines, line => line.Contains("[!INCLUDE [national-cloud-support]"));
+    }
+
+    [Fact]
+    public async Task PivotIncludesRemoveCorrectly()
+    {
+        // Arrange
+        var testFilePath = "../../../test-data/copilot-api-with-includes.md";
+        var lines = new List<string>(await File.ReadAllLinesAsync(testFilePath));
+
+        // Act
+        var insertIndex = ApiDocument.RemoveAllIncludeLines(lines);
+
+        // Assert
+        Assert.Equal(30, insertIndex);
+        Assert.DoesNotContain(lines, line => line.Contains("[!INCLUDE [national-cloud-support]"));
+    }
+
+    [Theory]
+    [MemberData(nameof(RelativePathData))]
+    public async Task IncludePathRelativeToFile_ComputesCorrectly(string filePath, string includeDirectory, string expectedRelativePath)
+    {
+        // Act
+        var relativePath = ApiDocument.GetIncludePathRelativeToFile(filePath, includeDirectory);
+
+        // Assert
+        Assert.Equal(expectedRelativePath, relativePath);
     }
 }

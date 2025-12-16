@@ -1,3 +1,4 @@
+<!-- cSpell:ignore stylecop contentfiles buildtransitive -->
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -23,6 +24,10 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="System.CommandLine" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="CheckCloudSupportTests" />
   </ItemGroup>
 
 </Project>

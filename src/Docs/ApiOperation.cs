@@ -22,6 +22,11 @@ public class ApiOperation
     public string? Path { get; private set; }
 
     /// <summary>
+    /// Gets the API version for the API operation.
+    /// </summary>
+    public ApiVersion Version { get; private set; } = ApiVersion.Unknown;
+
+    /// <summary>
     /// Creates an instance of the <see cref="ApiOperation"/> class from a <see cref="StringLine"/> instance.
     /// </summary>
     /// <param name="line">The <see cref="StringLine"/> instance to create from.</param>
@@ -60,6 +65,8 @@ public class ApiOperation
             .FixDriveShortcut()
             .FixDriveShareId()
             .FixWellKnownMailFoldersId();
+
+        operation.Version = parts[1].ExtractApiVersion();
 
         return operation;
     }
