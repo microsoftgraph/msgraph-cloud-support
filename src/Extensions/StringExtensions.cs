@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 using System.Text.RegularExpressions;
+using CheckCloudSupport.Docs;
 
 namespace CheckCloudSupport.Extensions;
 
@@ -10,6 +11,18 @@ namespace CheckCloudSupport.Extensions;
 /// </summary>
 public static partial class StringExtensions
 {
+    /// <summary>
+    /// Makes API path relative to version segment.
+    /// </summary>
+    /// <param name="path">The API path to make relative.</param>
+    /// <returns>The API path relative to the version segment.</returns>
+    public static string MakePathRelativeToVersion(this string path)
+    {
+        return path.Replace("https://graph.microsoft.com", string.Empty)
+            .Replace("/v1.0/", "/")
+            .Replace("/beta/", "/");
+    }
+
     /// <summary>
     /// Normalizes id segments in API paths.
     /// </summary>
@@ -129,6 +142,52 @@ public static partial class StringExtensions
     }
 
     /// <summary>
+    /// Extracts the doc type from Markdown content.
+    /// </summary>
+    /// <param name="markdown">The Markdown content to extract from.</param>
+    /// <returns>The doc type.</returns>
+    public static string? ExtractDocType(this string markdown)
+    {
+        var matches = DocTypeFromYamlRegex().Matches(markdown);
+        return matches.Count > 0 ? matches[0].Groups["docType"].Value : null;
+    }
+
+    /// <summary>
+    /// Determines whether zone pivots are enabled in the Markdown content.
+    /// </summary>
+    /// <param name="markdown">The Markdown content to check.</param>
+    /// <returns>A value indicating whether zone pivots are enabled.</returns>
+    public static bool AreZonePivotsEnabled(this string markdown)
+    {
+        var matches = ZonePivotsEnabledRegex().Matches(markdown);
+        return matches.Count > 0;
+    }
+
+    /// <summary>
+    /// Extracts the API version from an API path.
+    /// </summary>
+    /// <param name="path">The API path.</param>
+    /// <returns>The extracted version.</returns>
+    public static ApiVersion ExtractApiVersion(this string path)
+    {
+        var matches = ApiVersionFromPathRegex().Matches(path);
+        if (matches.Count > 0 && !string.IsNullOrEmpty(matches[0].Groups["version"].Value))
+        {
+            if (matches[0].Groups["version"].Value.IsEqualIgnoringCase("beta"))
+            {
+                return ApiVersion.Beta;
+            }
+
+            if (matches[0].Groups["version"].Value.IsEqualIgnoringCase("v1.0"))
+            {
+                return ApiVersion.V1;
+            }
+        }
+
+        return ApiVersion.Unknown;
+    }
+
+    /// <summary>
     /// Compares the string against a provided value, ignoring case.
     /// </summary>
     /// <param name="value">The string to act on.</param>
@@ -175,4 +234,13 @@ public static partial class StringExtensions
 
     [GeneratedRegex("\\/mail[Ff]olders\\/\\w*\\/")]
     private static partial Regex WellKnownFolderNamesRegex();
+
+    [GeneratedRegex("^doc_type:\\s*\"?(?'docType'[a-zA-Z0-9]+)", RegexOptions.Multiline)]
+    private static partial Regex DocTypeFromYamlRegex();
+
+    [GeneratedRegex("^\\s*zone_pivot_groups:\\s*graph-api-versions\\s*$", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+    private static partial Regex ZonePivotsEnabledRegex();
+
+    [GeneratedRegex("^https://graph.microsoft.com/(?'version'[^/]+)/", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
+    private static partial Regex ApiVersionFromPathRegex();
 }

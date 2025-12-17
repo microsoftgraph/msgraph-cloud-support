@@ -40,12 +40,36 @@
         "--api-docs",
         "C:/Source/Repos/microsoft-graph-docs/api-reference/beta/api",
         "--overrides",
-        "C:/Source/Repos/msgraph-cloud-support/src/overrides.json",
+        "C:/Source/Repos/microsoft-graph-docs/api-reference/cloud.api.overrides.json",
         "--excludes",
-        "C:/Source/Repos/msgraph-cloud-support/src/cloud-exclusions.json",
+        "C:/Source/Repos/microsoft-graph-docs/api-reference/cloud.exclusions.json",
         "--out-file",
         "./unprocessedfiles.txt",
         "--remove-old-includes"
+      ],
+      "cwd": "${workspaceFolder}/src",
+      // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "stopAtEntry": false,
+    },
+    {
+      "name": "Run against Copilot docs",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      // If you have changed target frameworks, make sure to update the program path.
+      "program": "${workspaceFolder}/src/bin/Debug/net10.0/CheckCloudSupport.dll",
+      "args": [
+        "copilot",
+        "--open-api",
+        "C:/Source/Repos/msgraph-metadata/schemas/openapi",
+        "--api-docs",
+        "C:/Source/Repos/m365copilot-docs-pr/docs/api",
+        "--include-directory",
+        "C:/Source/Repos/m365copilot-docs-pr/docs/api/includes",
+        "--out-file",
+        "./unprocessedfiles.txt"
       ],
       "cwd": "${workspaceFolder}/src",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

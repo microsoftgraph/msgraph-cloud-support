@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+using Microsoft.Extensions.Logging;
+
 namespace CheckCloudSupport.Docs;
 
 /// <summary>
@@ -68,12 +70,20 @@ public class DocSet
     /// <returns>A task that represents the asynchronous load operation.</returns>
     public async Task LoadDirectory()
     {
-        var markdownFiles = Directory.EnumerateFiles(RootDirectory, "*.md");
+        var markdownFiles = Directory.EnumerateFiles(RootDirectory, "*.md", SearchOption.AllDirectories);
         if (markdownFiles != null)
         {
             foreach (var file in markdownFiles)
             {
-                ApiDocuments.Add(await ApiDocument.CreateFromMarkdownFile(file));
+                try
+                {
+                    OutputLogger.Logger?.LogInformation("Loading document: {file}", file);
+                    ApiDocuments.Add(await ApiDocument.CreateFromMarkdownFile(file));
+                }
+                catch (DocTypeException ex)
+                {
+                    OutputLogger.Logger?.LogWarning("Skipping file {file}: {message}", file, ex.Message);
+                }
             }
         }
     }

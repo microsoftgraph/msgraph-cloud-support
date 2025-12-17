@@ -30,6 +30,7 @@ public class StringExtensionsTests
         Assert.Equal("/drives/{id}/bundles/{id}/children", normalizedPath);
     }
 
+// cSpell:ignore Pstn williamlooney localizationpriority callrecords pstncalllogrow
     public readonly string markdownWithNamespace = """
 ---
 title: "callRecord: getPstnCalls"
