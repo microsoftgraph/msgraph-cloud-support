@@ -23,16 +23,16 @@ public class ApiDocumentTests
     // cSpell:ignore accesspackage copilotadminlimitedmode copilotreportroot incompatibleaccesspackage getmicrosoft copilotusageuserdetail
     private static TheoryData<string, string, string> WindowsRelativePathData => new()
     {
-        {"C:/Source/Repos/microsoft-graph-docs/api-reference/v1.0/api\\accesspackage-delete-incompatibleaccesspackage.md", "../../includes", "../../includes"},
         {"C:/Source/Repos/m365copilot-docs-pr/docs/api\\admin-settings\\copilotadminlimitedmode-get.md", "C:/Source/Repos/m365copilot-docs-pr/docs/api/includes", "../includes"},
         {"C:/Source/Repos/m365copilot-docs-pr/docs/api\\admin-settings\\reports\\copilotreportroot-getmicrosoft365copilotusageuserdetail.md", "C:/Source/Repos/m365copilot-docs-pr/docs/api/includes", "../../includes"},
+        {"./docs/docs/api\\admin-settings\\copilotadminlimitedmode-get.md", "./docs/docs/api/includes", "../includes"},
     };
 
     private static TheoryData<string, string, string> UnixRelativePathData => new()
     {
-        {"/home/user/repos/microsoft-graph-docs/api-reference/v1.0/api/accesspackage-delete-incompatibleaccesspackage.md", "../../includes", "../../includes"},
         {"/home/user/repos/m365copilot-docs-pr/docs/api/admin-settings/copilotadminlimitedmode-get.md", "/home/user/repos/m365copilot-docs-pr/docs/api/includes", "../includes"},
         {"/home/user/repos/m365copilot-docs-pr/docs/api/admin-settings/reports/copilotreportroot-getmicrosoft365copilotusageuserdetail.md", "/home/user/repos/m365copilot-docs-pr/docs/api/includes", "../../includes"},
+        {"./docs/docs/api/admin-settings/copilotadminlimitedmode-get.md", "./docs/docs/api/includes", "../includes"},
     };
 
     [Fact]

@@ -64,13 +64,14 @@ public class ApiDocument
     /// <summary>
     /// Adds or updates the INCLUDE line indicating cloud support status.
     /// </summary>
-    /// <param name="removeOldIncludes">If specified, location of existing INCLUDE line is ignored.</param>
+    /// <param name="removeOldIncludes">If true, location of existing INCLUDE line is ignored.</param>
     /// <param name="includeDirectory">The directory containing the INCLUDE files.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    public async Task AddOrUpdateIncludeLine(bool removeOldIncludes, string includeDirectory = "../../includes")
+    public async Task AddOrUpdateIncludeLine(bool removeOldIncludes, string? includeDirectory = null)
     {
         var lines = new List<string>(await File.ReadAllLinesAsync(FilePath));
-        var relativeIncludeDirectoryPath = GetIncludePathRelativeToFile(FilePath, includeDirectory);
+        var relativeIncludeDirectoryPath = string.IsNullOrEmpty(includeDirectory) ?
+            "../../includes" : GetIncludePathRelativeToFile(FilePath, includeDirectory);
 
         // Check if INCLUDE line already exists
         var includeLine = lines.FirstOrDefault(line => line.Contains("[!INCLUDE [national-cloud-support]"));
@@ -197,21 +198,16 @@ public class ApiDocument
     /// Gets the include path relative to the file.
     /// </summary>
     /// <param name="filePath">The path to the file.</param>
-    /// <param name="includeDirectory">The include directory path. NOTE: If the include directory path is a relative path, it is returned as-is.</param>
+    /// <param name="includeDirectory">The include directory path.</param>
     /// <returns>The include directory path relative to the file.</returns>
     /// <exception cref="InvalidOperationException">Thrown if the file path does not have a containing directory.</exception>
     internal static string GetIncludePathRelativeToFile(string filePath, string includeDirectory)
     {
-        if (Path.IsPathRooted(includeDirectory))
-        {
-            var fullContainingDirectoryPath = Path.GetDirectoryName(Path.GetFullPath(filePath)) ??
-                throw new InvalidOperationException("File path does not have a containing directory");
-            var fullIncludeDirectoryPath = Path.GetFullPath(includeDirectory) ??
-                throw new InvalidOperationException("Include directory path is invalid");
-            return Path.GetRelativePath(fullContainingDirectoryPath, fullIncludeDirectoryPath).Replace('\\', '/');
-        }
-
-        return includeDirectory;
+        var fullContainingDirectoryPath = Path.GetDirectoryName(Path.GetFullPath(filePath)) ??
+            throw new InvalidOperationException("File path does not have a containing directory");
+        var fullIncludeDirectoryPath = Path.GetFullPath(includeDirectory) ??
+            throw new InvalidOperationException("Include directory path is invalid");
+        return Path.GetRelativePath(fullContainingDirectoryPath, fullIncludeDirectoryPath).Replace('\\', '/');
     }
 
     private static string GetIncludeLine(CloudSupportStatus status, string includeDirectory)
