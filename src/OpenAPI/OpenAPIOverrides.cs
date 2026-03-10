@@ -58,6 +58,19 @@ public static class OpenAPIOverrides
             string.Compare(e.Cloud, cloud, StringComparison.InvariantCultureIgnoreCase) == 0) ?? false;
     }
 
+    /// <summary>
+    /// Checks if a cloud is excluded for a given API doc file. This is used to exclude entire
+    /// files of APIs that don't function in certain clouds, even if the individual API paths aren't known.
+    /// </summary>
+    /// <param name="fileName">The name of the API doc file to check for an exclusion for.</param>
+    /// <param name="cloud">The cloud to check.</param>
+    /// <returns>True if the given cloud is excluded for the specified file.</returns>
+    public static bool CheckIfCloudExcludedForFile(string fileName, string cloud)
+    {
+        return cloudExclusions?.Any(e => string.Compare(e.FileName, fileName, StringComparison.InvariantCultureIgnoreCase) == 0 &&
+            string.Compare(e.Cloud, cloud, StringComparison.InvariantCultureIgnoreCase) == 0) ?? false;
+    }
+
     private static void LoadOverridesFromJson(string? jsonFile)
     {
         if (!string.IsNullOrEmpty(jsonFile))

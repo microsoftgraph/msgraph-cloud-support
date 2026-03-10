@@ -1,10 +1,16 @@
 {
-    "cSpell.words": [
-        "CSDL",
-        "Edmx",
-        "intune",
-        "Markdig",
-        "Mooncake",
-        "olders"
-    ]
+  "cSpell.words": [
+    "CSDL",
+    "Edmx",
+    "intune",
+    "Markdig",
+    "Mooncake",
+    "olders"
+  ],
+  "json.schemas": [
+    {
+      "fileMatch": ["cloud-exclusions.json"],
+      "url": "./schema/cloud.exclusions.schema.json"
+    }
+  ]
 }

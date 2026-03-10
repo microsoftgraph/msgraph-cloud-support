@@ -148,7 +148,7 @@ rootCommand.SetAction(async (result, cancellationToken) =>
                 continue;
             }
 
-            var supportStatus = operationNode.GetCloudSupportStatus(operation.Method);
+            var supportStatus = operationNode.GetCloudSupportStatus(operation.Method, apiDoc.FilePath);
             OutputLogger.Logger?.LogInformation("{path} support status: {status}", operation.Path, supportStatus);
             if (supportStatus != CloudSupportStatus.Unknown &&
                 apiDoc.CloudSupportStatus != CloudSupportStatus.Unknown &&
@@ -327,7 +327,7 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
                 continue;
             }
 
-            var supportStatus = operationNode.GetCloudSupportStatus(operation.Method);
+            var supportStatus = operationNode.GetCloudSupportStatus(operation.Method, apiDoc.FilePath);
             OutputLogger.Logger?.LogInformation("{version} {path} support status: {status}", "v1", operation.Path, supportStatus);
             if (supportStatus != CloudSupportStatus.Unknown &&
                 v1CloudSupportStatus != CloudSupportStatus.Unknown &&
@@ -364,7 +364,7 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
                 continue;
             }
 
-            var supportStatus = operationNode.GetCloudSupportStatus(operation.Method);
+            var supportStatus = operationNode.GetCloudSupportStatus(operation.Method, apiDoc.FilePath);
             OutputLogger.Logger?.LogInformation("{version} {path} support status: {status}", "beta", operation.Path, supportStatus);
             if (supportStatus != CloudSupportStatus.Unknown &&
                 betaCloudSupportStatus != CloudSupportStatus.Unknown &&

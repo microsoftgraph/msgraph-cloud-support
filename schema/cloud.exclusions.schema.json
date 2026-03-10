@@ -14,6 +14,10 @@
           "description": "The HTTP method for the API to exclude.",
           "type": "string"
         },
+        "fileName": {
+          "description": "The API doc file name. Setting this property excludes all APIs in the specified file from the specified cloud.",
+          "type": "string"
+        },
         "cloud": {
           "description": "The cloud to exclude this API from. Must be 'Global', 'UsGov', or 'China'.",
           "type": "string",
@@ -22,12 +26,22 @@
             "UsGov",
             "China"
           ]
+        },
+        "description": {
+          "description": "A description of the reason for the exclusion.",
+          "type": "string"
         }
       },
       "required": [
-        "apiPath",
-        "operation",
         "cloud"
+      ],
+      "oneOf": [
+        {
+          "required": ["apiPath", "operation"]
+        },
+        {
+          "required": ["fileName"]
+        }
       ],
       "additionalProperties": false
     }
