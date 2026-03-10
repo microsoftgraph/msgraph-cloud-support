@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CheckCloudSupport.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/CheckCloudSupportTests.csproj" />
+  </Folder>
+</Solution>
