@@ -25,6 +25,13 @@ public class CloudExclusion
     public string? Operation { get;  set; }
 
     /// <summary>
+    /// Gets or sets the API doc file name. Setting this property excludes
+    /// all APIs in the specified file from the specified cloud.
+    /// </summary>
+    [JsonPropertyName("fileName")]
+    public string? FileName { get; set; }
+
+    /// <summary>
     /// Gets or sets the cloud to exclude.
     /// </summary>
     [JsonPropertyName("cloud")]

@@ -99,27 +99,35 @@ public static class OpenApiUrlTreeNodeExtensions
     /// </summary>
     /// <param name="node">The API URL node to check.</param>
     /// <param name="method">The HTTP method to check for.</param>
+    /// <param name="filePath">The API document file path.</param>
     /// <returns>The <see cref="CloudSupportStatus"/> indicating the cloud support status of the API.</returns>
-    public static CloudSupportStatus GetCloudSupportStatus(this OpenApiUrlTreeNode node, HttpMethod? method)
+    public static CloudSupportStatus GetCloudSupportStatus(
+        this OpenApiUrlTreeNode node,
+        HttpMethod? method,
+        string filePath)
     {
         if (method == null)
         {
             return CloudSupportStatus.Unknown;
         }
 
+        var fileName = Path.GetFileName(filePath);
+
         if (node.Path.EndsWith("\\bundles\\{driveItem-id}"))
-            {
-                method = HttpMethod.Get;
-            }
+        {
+            method = HttpMethod.Get;
+        }
 
         var supportsGlobal = node.PathItems.ContainsKey("Global") &&
             (node.PathItems["Global"].Operations?.ContainsKey(method) ?? false);
         var supportsUsGov = node.PathItems.ContainsKey("UsGov") &&
             (node.PathItems["UsGov"].Operations?.ContainsKey(method) ?? false) &&
-            !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "UsGov");
+            !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "UsGov") &&
+            !OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "UsGov");
         var supportsChina = node.PathItems.ContainsKey("China") &&
             (node.PathItems["China"].Operations?.ContainsKey(method) ?? false) &&
-            !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "China");
+            !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "China") &&
+            !OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "China");
 
         if (!supportsGlobal)
         {
