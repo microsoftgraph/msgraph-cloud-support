@@ -217,7 +217,7 @@ public class ApiDocument
             CloudSupportStatus.AllClouds => $"[!INCLUDE [national-cloud-support]({includeDirectory}/all-clouds.md)]",
             CloudSupportStatus.GlobalAndUSGov => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-us.md)]",
             CloudSupportStatus.GlobalAndChina => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-china.md)]",
-            CloudSupportStatus.GlobalOnly => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-only.md)]",
+            CloudSupportStatus.Global => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-only.md)]",
             _ => throw new ArgumentException("Invalid cloud support status"),
         };
     }

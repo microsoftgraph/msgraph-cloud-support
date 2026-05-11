@@ -6,30 +6,51 @@ namespace CheckCloudSupport.Docs;
 /// <summary>
 /// Represents the cloud support status of an API.
 /// </summary>
+[Flags]
 public enum CloudSupportStatus
 {
     /// <summary>
     /// Cloud support status is undetermined.
     /// </summary>
-    Unknown,
+    Unknown = 0,
 
     /// <summary>
-    /// API is supported in all public national clouds.
+    /// API is supported in Chinese cloud.
     /// </summary>
-    AllClouds,
+    China = 1 << 0,
 
     /// <summary>
-    /// API is supported in the global and US Government clouds only.
+    /// API is supported in the global cloud.
     /// </summary>
-    GlobalAndUSGov,
+    Global = 1 << 1,
 
     /// <summary>
-    /// API is supported in the global and Chinese clouds only.
+    /// API is supported in the US Government L4 cloud.
     /// </summary>
-    GlobalAndChina,
+    USGovL4 = 1 << 2,
 
     /// <summary>
-    /// API is supported in the global cloud only.
+    /// API is supported in the US Government L5 cloud.
     /// </summary>
-    GlobalOnly,
+    USGovL5 = 1 << 3,
+
+    /// <summary>
+    /// API is supported in the US Government cloud (L4 and L5).
+    /// </summary>
+    USGov = USGovL4 | USGovL5,
+
+    /// <summary>
+    /// API is supported in all clouds (China, Global, and US Government).
+    /// </summary>
+    AllClouds = China | Global | USGov,
+
+    /// <summary>
+    /// API is supported in both Global and US Government clouds.
+    /// </summary>
+    GlobalAndUSGov = Global | USGov,
+
+    /// <summary>
+    /// API is supported in both Global and Chinese clouds.
+    /// </summary>
+    GlobalAndChina = Global | China,
 }

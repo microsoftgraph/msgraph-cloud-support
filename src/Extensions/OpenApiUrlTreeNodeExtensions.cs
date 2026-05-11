@@ -135,16 +135,17 @@ public static class OpenApiUrlTreeNodeExtensions
             return CloudSupportStatus.Unknown;
         }
 
-        if (supportsUsGov && supportsChina)
+        var status = CloudSupportStatus.Global;
+        if (supportsUsGov)
         {
-            return CloudSupportStatus.AllClouds;
+            status |= CloudSupportStatus.USGov;
         }
 
-        if (!supportsUsGov && !supportsChina)
+        if (supportsChina)
         {
-            return CloudSupportStatus.GlobalOnly;
+            status |= CloudSupportStatus.China;
         }
 
-        return supportsUsGov ? CloudSupportStatus.GlobalAndUSGov : CloudSupportStatus.GlobalAndChina;
+        return status;
     }
 }
