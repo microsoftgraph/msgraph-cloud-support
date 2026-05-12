@@ -24,6 +24,8 @@
           "enum": [
             "Global",
             "UsGov",
+            "UsGovL4",
+            "UsGovL5",
             "China"
           ]
         },

@@ -37,7 +37,7 @@ public static partial class StringExtensions
         normalizedPath = normalizedPath.Replace("/{name}", "/{id}");
 
         // Replace any segments wrapped in braces that contain "id"
-        normalizedPath = IdSegmentRegex().Replace(normalizedPath, "{id}");
+        normalizedPath = IdSegmentRegex().Replace(normalizedPath, "/{id}");
 
         return normalizedPath;
     }
@@ -211,13 +211,13 @@ public static partial class StringExtensions
         return compareValue == 0;
     }
 
-    [GeneratedRegex("{[^{}]*id[^{}]*}", RegexOptions.IgnoreCase)]
+    [GeneratedRegex("\\/{[^{}]*id[^{}]*}", RegexOptions.IgnoreCase)]
     private static partial Regex IdSegmentRegex();
 
-    [GeneratedRegex("\\(((?>\\w*='?\\{?[\\w-]*\\}?'?,?)+)\\)")]
+    [GeneratedRegex("\\(((?>\\w*='?\\{?[\\w@-]*\\}?'?,?)+)\\)")]
     private static partial Regex ParameterListRegex();
 
-    [GeneratedRegex("(?<param>\\w*)='?(?<value>\\{?[\\w-]*\\}?)'?")]
+    [GeneratedRegex("(?<param>\\w*)='?(?<value>\\{?[\\w@-]*\\}?)'?")]
     private static partial Regex ParameterValuePairRegex();
 
     [GeneratedRegex("^\\/users\\/{id}\\/drive\\/")]

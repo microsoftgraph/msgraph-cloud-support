@@ -39,32 +39,6 @@ public class DocSet
     }
 
     /// <summary>
-    /// Combines two <see cref="CloudSupportStatus"/> into the most inclusive value.
-    /// </summary>
-    /// <param name="a">The first status.</param>
-    /// <param name="b">The second status.</param>
-    /// <returns>The combined status.</returns>
-    public static CloudSupportStatus CombineStatuses(CloudSupportStatus a, CloudSupportStatus b)
-    {
-        if (a == b)
-        {
-            return a;
-        }
-
-        if (a == CloudSupportStatus.Unknown || a == CloudSupportStatus.GlobalOnly)
-        {
-            return b == CloudSupportStatus.Unknown ? CloudSupportStatus.GlobalOnly : b;
-        }
-
-        if (b == CloudSupportStatus.Unknown || b == CloudSupportStatus.GlobalOnly)
-        {
-            return a;
-        }
-
-        return CloudSupportStatus.AllClouds;
-    }
-
-    /// <summary>
     /// Loads the Markdown files in the root directory into the <see cref="DocSet"/>.
     /// </summary>
     /// <returns>A task that represents the asynchronous load operation.</returns>

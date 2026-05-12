@@ -160,7 +160,7 @@ rootCommand.SetAction(async (result, cancellationToken) =>
                     supportStatus,
                     apiDoc.CloudSupportStatus);
 
-                apiDoc.CloudSupportStatus = DocSet.CombineStatuses(apiDoc.CloudSupportStatus, supportStatus);
+                apiDoc.CloudSupportStatus |= supportStatus;
             }
             else
             {
@@ -340,7 +340,7 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
                     supportStatus,
                     v1CloudSupportStatus);
 
-                v1CloudSupportStatus = DocSet.CombineStatuses(v1CloudSupportStatus, supportStatus);
+                v1CloudSupportStatus |= supportStatus;
             }
             else
             {
@@ -377,7 +377,7 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
                     supportStatus,
                     betaCloudSupportStatus);
 
-                betaCloudSupportStatus = DocSet.CombineStatuses(betaCloudSupportStatus, supportStatus);
+                betaCloudSupportStatus |= supportStatus;
             }
             else
             {
