@@ -53,4 +53,24 @@ public enum CloudSupportStatus
     /// API is supported in both Global and Chinese clouds.
     /// </summary>
     GlobalAndChina = Global | China,
+
+    /// <summary>
+    /// API is supported in both Global and US Government L4 clouds.
+    /// </summary>
+    GlobalAndUsGovL4 = Global | USGovL4,
+
+    /// <summary>
+    /// API is supported in both Global and US Government L5 clouds.
+    /// </summary>
+    GlobalAndUsGovL5 = Global | USGovL5,
+
+    /// <summary>
+    /// API is supported in Global, Chinese, and US Government L4 clouds.
+    /// </summary>
+    GlobalAndChinaAndUsGovL4 = Global | China | USGovL4,
+
+    /// <summary>
+    /// API is supported in Global, Chinese, and US Government L5 clouds.
+    /// </summary>
+    GlobalAndChinaAndUsGovL5 = Global | China | USGovL5,
 }

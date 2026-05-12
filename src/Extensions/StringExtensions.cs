@@ -37,7 +37,7 @@ public static partial class StringExtensions
         normalizedPath = normalizedPath.Replace("/{name}", "/{id}");
 
         // Replace any segments wrapped in braces that contain "id"
-        normalizedPath = IdSegmentRegex().Replace(normalizedPath, "{id}");
+        normalizedPath = IdSegmentRegex().Replace(normalizedPath, "/{id}");
 
         return normalizedPath;
     }
@@ -211,13 +211,65 @@ public static partial class StringExtensions
         return compareValue == 0;
     }
 
-    [GeneratedRegex("{[^{}]*id[^{}]*}", RegexOptions.IgnoreCase)]
+    /// <summary>
+    /// Determines whether the string is a function signature.
+    /// </summary>
+    /// <param name="value">The string to check.</param>
+    /// <returns>A value indicating whether the string is a function signature.</returns>
+    public static bool IsFunctionSignature(this string value)
+    {
+        return FunctionSignatureRegex().IsMatch(value);
+    }
+
+    /// <summary>
+    /// Gets the variants of a function signature with optional parameters.
+    /// </summary>
+    /// <param name="segment">The function signature segment.</param>
+    /// <returns>An array of function signature variants with optional parameters.</returns>
+    public static string[] VariantsWithOptionalParameters(this string segment)
+    {
+        var variants = new List<string>();
+
+        if (!segment.IsFunctionSignature())
+        {
+            return [];
+        }
+
+        var parameterListMatches = ParameterListRegex().Matches(segment);
+
+        foreach (var parameterListMatch in parameterListMatches.ToList())
+        {
+            var parameterList = parameterListMatch.Groups[1].Value;
+
+            var parameterValuePairMatches = ParameterValuePairRegex().Matches(parameterList);
+
+            var parameters = new List<string>();
+
+            foreach (var parameterValuePairMatch in parameterValuePairMatches.ToList())
+            {
+                var parameterName = parameterValuePairMatch.Groups.GetValueOrDefault("param")?.Value;
+                parameters.Add(parameterName ?? string.Empty);
+            }
+
+            for (int i = 0; i < parameters.Count; i++)
+            {
+                var optionalParameters = parameters.Skip(i).ToArray();
+                var optionalParameterString = string.Join(',', optionalParameters.Select(p => $"{p}='{{{p}}}'"));
+                var variant = segment.Replace(parameterList, optionalParameterString);
+                variants.Add(variant);
+            }
+        }
+
+        return [.. variants];
+    }
+
+    [GeneratedRegex("\\/{[^{}]*id[^{}]*}", RegexOptions.IgnoreCase)]
     private static partial Regex IdSegmentRegex();
 
-    [GeneratedRegex("\\(((?>\\w*='?\\{?[\\w-]*\\}?'?,?)+)\\)")]
+    [GeneratedRegex("\\(((?>\\w*='?\\{?[\\w@-]*\\}?'?,?)+)\\)")]
     private static partial Regex ParameterListRegex();
 
-    [GeneratedRegex("(?<param>\\w*)='?(?<value>\\{?[\\w-]*\\}?)'?")]
+    [GeneratedRegex("(?<param>\\w*)='?(?<value>\\{?[\\w@-]*\\}?)'?")]
     private static partial Regex ParameterValuePairRegex();
 
     [GeneratedRegex("^\\/users\\/{id}\\/drive\\/")]
@@ -243,4 +295,10 @@ public static partial class StringExtensions
 
     [GeneratedRegex("^https://graph.microsoft.com/(?'version'[^/]+)/", RegexOptions.IgnoreCase | RegexOptions.Multiline)]
     private static partial Regex ApiVersionFromPathRegex();
+
+    [GeneratedRegex(@"\w+\([\w={},]+\)", RegexOptions.IgnoreCase)]
+    private static partial Regex FunctionSignatureRegex();
+
+    [GeneratedRegex(@"(?<param>\w+)=\{(?<value>[^}]+)\}", RegexOptions.IgnoreCase)]
+    private static partial Regex FunctionParameterRegex();
 }

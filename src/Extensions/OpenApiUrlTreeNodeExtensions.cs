@@ -118,34 +118,57 @@ public static class OpenApiUrlTreeNodeExtensions
             method = HttpMethod.Get;
         }
 
-        var supportsGlobal = node.PathItems.ContainsKey("Global") &&
-            (node.PathItems["Global"].Operations?.ContainsKey(method) ?? false);
-        var supportsUsGov = node.PathItems.ContainsKey("UsGov") &&
-            (node.PathItems["UsGov"].Operations?.ContainsKey(method) ?? false) &&
-            !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "UsGov") &&
-            !OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "UsGov");
-        var supportsChina = node.PathItems.ContainsKey("China") &&
-            (node.PathItems["China"].Operations?.ContainsKey(method) ?? false) &&
-            !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "China") &&
-            !OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "China");
-
-        if (!supportsGlobal)
+        var supportStatus = node.PathItems.TryGetValue("Global", out IOpenApiPathItem? globalValue) &&
+            (globalValue.Operations?.ContainsKey(method) ?? false)
+                ? CloudSupportStatus.Global
+                : CloudSupportStatus.Unknown;
+        if (supportStatus == CloudSupportStatus.Unknown)
         {
-            // Only process APIs that exist in Global cloud
+            return supportStatus;
+        }
+
+        if (node.PathItems.TryGetValue("UsGov", out IOpenApiPathItem? usGovValue) &&
+            (usGovValue.Operations?.ContainsKey(method) ?? false))
+        {
+            supportStatus |= GetUsGovCloudSupportStatus(node.Path, method, fileName);
+        }
+
+        if (node.PathItems.TryGetValue("China", out IOpenApiPathItem? chinaValue) &&
+            (chinaValue.Operations?.ContainsKey(method) ?? false) &&
+            !OpenAPIOverrides.CheckIfCloudExcluded(node.Path, method, "China") &&
+            !OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "China"))
+        {
+            supportStatus |= CloudSupportStatus.China;
+        }
+
+        return supportStatus;
+    }
+
+    private static CloudSupportStatus GetUsGovCloudSupportStatus(
+        string apiPath,
+        HttpMethod? method,
+        string fileName)
+    {
+        var supportStatus = CloudSupportStatus.USGov;
+
+        if (OpenAPIOverrides.CheckIfCloudExcluded(apiPath, method, "UsGov") ||
+            OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "UsGov"))
+        {
             return CloudSupportStatus.Unknown;
         }
 
-        var status = CloudSupportStatus.Global;
-        if (supportsUsGov)
+        if (OpenAPIOverrides.CheckIfCloudExcluded(apiPath, method, "UsGovL4") ||
+            OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "UsGovL4"))
         {
-            status |= CloudSupportStatus.USGov;
+            supportStatus &= ~CloudSupportStatus.USGovL4;
         }
 
-        if (supportsChina)
+        if (OpenAPIOverrides.CheckIfCloudExcluded(apiPath, method, "UsGovL5") ||
+            OpenAPIOverrides.CheckIfCloudExcludedForFile(fileName, "UsGovL5"))
         {
-            status |= CloudSupportStatus.China;
+            supportStatus &= ~CloudSupportStatus.USGovL5;
         }
 
-        return status;
+        return supportStatus;
     }
 }

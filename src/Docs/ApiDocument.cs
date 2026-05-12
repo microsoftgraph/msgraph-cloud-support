@@ -215,8 +215,12 @@ public class ApiDocument
         return status switch
         {
             CloudSupportStatus.AllClouds => $"[!INCLUDE [national-cloud-support]({includeDirectory}/all-clouds.md)]",
-            CloudSupportStatus.GlobalAndUSGov => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-us.md)]",
             CloudSupportStatus.GlobalAndChina => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-china.md)]",
+            CloudSupportStatus.GlobalAndChinaAndUsGovL4 => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-china-us-l4.md)]",
+            CloudSupportStatus.GlobalAndChinaAndUsGovL5 => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-china-us-l5.md)]",
+            CloudSupportStatus.GlobalAndUSGov => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-us.md)]",
+            CloudSupportStatus.GlobalAndUsGovL4 => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-us-l4.md)]",
+            CloudSupportStatus.GlobalAndUsGovL5 => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-us-l5.md)]",
             CloudSupportStatus.Global => $"[!INCLUDE [national-cloud-support]({includeDirectory}/global-only.md)]",
             _ => throw new ArgumentException("Invalid cloud support status"),
         };
