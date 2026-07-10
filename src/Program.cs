@@ -150,22 +150,18 @@ rootCommand.SetAction(async (result, cancellationToken) =>
 
             var supportStatus = operationNode.GetCloudSupportStatus(operation.Method, apiDoc.FilePath);
             OutputLogger.Logger?.LogInformation("{path} support status: {status}", operation.Path, supportStatus);
-            if (supportStatus != CloudSupportStatus.Unknown &&
-                apiDoc.CloudSupportStatus != CloudSupportStatus.Unknown &&
-                supportStatus != apiDoc.CloudSupportStatus)
+
+            var mergedStatus = CloudSupportStatusEvaluator.Merge(apiDoc.CloudSupportStatus, supportStatus, out var statusMismatch);
+            if (statusMismatch)
             {
                 OutputLogger.Logger?.LogWarning(
                     "Mismatched support status in API doc {path}: {newStatus}, {oldStatus}",
                     apiDoc.FilePath,
                     supportStatus,
                     apiDoc.CloudSupportStatus);
+            }
 
-                apiDoc.CloudSupportStatus |= supportStatus;
-            }
-            else
-            {
-                apiDoc.CloudSupportStatus = supportStatus != CloudSupportStatus.Unknown ? supportStatus : apiDoc.CloudSupportStatus;
-            }
+            apiDoc.CloudSupportStatus = mergedStatus;
         }
 
         try
@@ -329,9 +325,9 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
 
             var supportStatus = operationNode.GetCloudSupportStatus(operation.Method, apiDoc.FilePath);
             OutputLogger.Logger?.LogInformation("{version} {path} support status: {status}", "v1", operation.Path, supportStatus);
-            if (supportStatus != CloudSupportStatus.Unknown &&
-                v1CloudSupportStatus != CloudSupportStatus.Unknown &&
-                supportStatus != v1CloudSupportStatus)
+
+            var mergedStatus = CloudSupportStatusEvaluator.Merge(v1CloudSupportStatus, supportStatus, out var statusMismatch);
+            if (statusMismatch)
             {
                 OutputLogger.Logger?.LogWarning(
                     "Mismatched {version} support status in API doc {path}: {newStatus}, {oldStatus}",
@@ -339,13 +335,9 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
                     apiDoc.FilePath,
                     supportStatus,
                     v1CloudSupportStatus);
+            }
 
-                v1CloudSupportStatus |= supportStatus;
-            }
-            else
-            {
-                v1CloudSupportStatus = supportStatus != CloudSupportStatus.Unknown ? supportStatus : v1CloudSupportStatus;
-            }
+            v1CloudSupportStatus = mergedStatus;
         }
 
         var betaCloudSupportStatus = CloudSupportStatus.Unknown;
@@ -366,9 +358,9 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
 
             var supportStatus = operationNode.GetCloudSupportStatus(operation.Method, apiDoc.FilePath);
             OutputLogger.Logger?.LogInformation("{version} {path} support status: {status}", "beta", operation.Path, supportStatus);
-            if (supportStatus != CloudSupportStatus.Unknown &&
-                betaCloudSupportStatus != CloudSupportStatus.Unknown &&
-                supportStatus != betaCloudSupportStatus)
+
+            var mergedStatus = CloudSupportStatusEvaluator.Merge(betaCloudSupportStatus, supportStatus, out var statusMismatch);
+            if (statusMismatch)
             {
                 OutputLogger.Logger?.LogWarning(
                     "Mismatched {version} support status in API doc {path}: {newStatus}, {oldStatus}",
@@ -376,13 +368,9 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
                     apiDoc.FilePath,
                     supportStatus,
                     betaCloudSupportStatus);
+            }
 
-                betaCloudSupportStatus |= supportStatus;
-            }
-            else
-            {
-                betaCloudSupportStatus = supportStatus != CloudSupportStatus.Unknown ? supportStatus : betaCloudSupportStatus;
-            }
+            betaCloudSupportStatus = mergedStatus;
         }
 
         if (v1Operations.Count > 0 && v1CloudSupportStatus == CloudSupportStatus.Unknown)
@@ -390,7 +378,7 @@ copilotCommand.SetAction(async (result, cancellationToken) =>
             OutputLogger.Logger?.LogWarning("Could not determine v1 support status for {doc} - assuming beta status", apiDoc.FilePath);
         }
 
-        if (v1CloudSupportStatus == betaCloudSupportStatus || v1CloudSupportStatus == CloudSupportStatus.Unknown)
+        if (!CloudSupportStatusEvaluator.RequiresVersionPivot(v1CloudSupportStatus, betaCloudSupportStatus))
         {
             apiDoc.CloudSupportStatus = betaCloudSupportStatus;
 

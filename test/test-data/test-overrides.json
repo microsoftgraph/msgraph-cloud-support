@@ -1,0 +1,11 @@
+[
+  {
+    "apiPath": "/places/{id}",
+    "overridePath": "/places/{id}/graph.room",
+    "operation": "GET"
+  },
+  {
+    "apiPath": "/sites/{id}/pages/microsoft.graph.sitePage",
+    "overridePath": "/sites/{id}/pages"
+  }
+]

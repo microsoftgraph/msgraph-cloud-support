@@ -1,0 +1,19 @@
+openapi: 3.0.1
+info:
+  title: China
+  version: 1.0.0
+servers:
+  - url: https://microsoftgraph.chinacloudapi.cn/v1.0
+paths:
+  /users/{user-id}/messages:
+    get:
+      operationId: users.ListMessages
+      responses:
+        '200':
+          description: ok
+  /deviceManagement/managedDevices:
+    get:
+      operationId: deviceManagement.ListManagedDevices
+      responses:
+        '200':
+          description: ok
