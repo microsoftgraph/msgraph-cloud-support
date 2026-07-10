@@ -1,0 +1,11 @@
+[
+  {
+    "apiPath": "/appCatalogs/teamsApps",
+    "operation": "GET",
+    "cloud": "China"
+  },
+  {
+    "fileName": "excluded-file.md",
+    "cloud": "UsGov"
+  }
+]

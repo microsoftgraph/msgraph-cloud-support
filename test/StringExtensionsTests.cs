@@ -1,3 +1,4 @@
+using CheckCloudSupport.Docs;
 using CheckCloudSupport.Extensions;
 
 namespace CheckCloudSupportTests;
@@ -109,5 +110,102 @@ The following example shows getting a collection of records for PSTN calls that 
 
         // Assert
         Assert.Equal("microsoft.graph.callRecords", extractedNamespace);
+    }
+
+    [Theory]
+    [InlineData("https://graph.microsoft.com/v1.0/me/messages", "/me/messages")]
+    [InlineData("https://graph.microsoft.com/beta/me/messages", "/me/messages")]
+    [InlineData("/v1.0/users/{id}", "/users/{id}")]
+    [InlineData("/beta/users/{id}", "/users/{id}")]
+    [InlineData("/me/messages", "/me/messages")]
+    public void MakePathRelativeToVersion_StripsHostAndVersion(string path, string expected)
+    {
+        Assert.Equal(expected, path.MakePathRelativeToVersion());
+    }
+
+    [Theory]
+    [InlineData("/users/{user-id}/messages/{message-id}", "/users/{id}/messages/{id}")]
+    [InlineData("/workbook/charts/{name}", "/workbook/charts/{id}")]
+    [InlineData("/drive/root:/{item-path}:/children", "/drive/items/{id}/children")]
+    [InlineData("/users/{USER-ID}", "/users/{id}")]
+    public void NormalizeIdSegments_NormalizesToId(string path, string expected)
+    {
+        Assert.Equal(expected, path.NormalizeIdSegments());
+    }
+
+    [Theory]
+    [InlineData("/users/{id}/drive/items/{id}", "/drives/{id}/items/{id}")]
+    [InlineData("/me/drive/items/{id}", "/drives/{id}/items/{id}")]
+    [InlineData("/sites/{id}/drive/items/{id}", "/sites/{id}/drive/items/{id}")]
+    public void FixUserDrivePath_RewritesUserAndMeDriveShortcuts(string path, string expected)
+    {
+        Assert.Equal(expected, path.FixUserDrivePath());
+    }
+
+    [Fact]
+    public void FixDriveShareId_NormalizesEncodedSharingUrl()
+    {
+        Assert.Equal("/shares/{id}/driveItem", "/shares/{encoded-sharing-url}/driveItem".FixDriveShareId());
+    }
+
+    [Theory]
+    [InlineData("/me/mailFolders/inbox/messages", "/me/mailFolders/{id}/messages")]
+    [InlineData("/users/{id}/mailfolders/archive/messages", "/users/{id}/mailFolders/{id}/messages")]
+    public void FixWellKnownMailFoldersId_NormalizesFolderName(string path, string expected)
+    {
+        Assert.Equal(expected, path.FixWellKnownMailFoldersId());
+    }
+
+    [Fact]
+    public void ExtractDocType_ReturnsDocType()
+    {
+        Assert.Equal("apiPageType", markdownWithNamespace.ExtractDocType());
+    }
+
+    [Fact]
+    public void ExtractDocType_ReturnsNullWhenAbsent()
+    {
+        Assert.Null("# Just a heading\n\nSome text.".ExtractDocType());
+    }
+
+    [Fact]
+    public void AreZonePivotsEnabled_TrueWhenGroupDeclared()
+    {
+        var markdown = "---\nzone_pivot_groups: graph-api-versions\n---\n";
+        Assert.True(markdown.AreZonePivotsEnabled());
+    }
+
+    [Fact]
+    public void AreZonePivotsEnabled_FalseWhenAbsent()
+    {
+        Assert.False(markdownWithNamespace.AreZonePivotsEnabled());
+    }
+
+    [Theory]
+    [InlineData("https://graph.microsoft.com/v1.0/me", ApiVersion.V1)]
+    [InlineData("https://graph.microsoft.com/beta/me", ApiVersion.Beta)]
+    [InlineData("https://graph.microsoft.com/V1.0/me", ApiVersion.V1)]
+    [InlineData("/me/messages", ApiVersion.Unknown)]
+    public void ExtractApiVersion_ReturnsExpectedVersion(string path, ApiVersion expected)
+    {
+        Assert.Equal(expected, path.ExtractApiVersion());
+    }
+
+    [Theory]
+    [InlineData("users", "USERS", true)]
+    [InlineData("users", "users", true)]
+    [InlineData("users", "messages", false)]
+    public void IsEqualIgnoringCase_ComparesCaseInsensitively(string value, string compareTo, bool expected)
+    {
+        Assert.Equal(expected, value.IsEqualIgnoringCase(compareTo));
+    }
+
+    [Fact]
+    public void IsEqualIgnoringCase_MatchesFunctionParametersWithInconsistentQuoting()
+    {
+        var value = "getPstnCalls(fromDateTime={fromDateTime})";
+        var compareTo = "getPstnCalls(fromDateTime='{fromDateTime}')";
+
+        Assert.True(value.IsEqualIgnoringCase(compareTo));
     }
 }

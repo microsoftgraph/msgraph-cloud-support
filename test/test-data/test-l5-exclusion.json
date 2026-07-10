@@ -1,0 +1,7 @@
+[
+  {
+    "apiPath": "/users/{user-id}/messages",
+    "operation": "GET",
+    "cloud": "UsGovL5"
+  }
+]

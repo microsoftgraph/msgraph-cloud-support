@@ -1,0 +1,31 @@
+openapi: 3.0.1
+info:
+  title: Global
+  version: 1.0.0
+servers:
+  - url: https://graph.microsoft.com/v1.0
+paths:
+  /users/{user-id}/messages:
+    get:
+      operationId: users.ListMessages
+      responses:
+        '200':
+          description: ok
+  /security/alerts_v2/{alert-id}:
+    get:
+      operationId: security.GetAlert
+      responses:
+        '200':
+          description: ok
+  /deviceManagement/managedDevices:
+    get:
+      operationId: deviceManagement.ListManagedDevices
+      responses:
+        '200':
+          description: ok
+  /reports/getUsage():
+    get:
+      operationId: reports.getUsage
+      responses:
+        '200':
+          description: ok
