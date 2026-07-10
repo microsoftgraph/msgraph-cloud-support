@@ -149,6 +149,7 @@ public class ApiDocumentTests
         // Assert
         Assert.Equal(30, insertIndex);
         Assert.DoesNotContain(lines, line => line.Contains("[!INCLUDE [national-cloud-support]"));
+        Assert.DoesNotContain(lines, line => line.Contains("[!INCLUDE [version-support-differs]"));
     }
 
     [Theory]
