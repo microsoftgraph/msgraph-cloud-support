@@ -123,6 +123,8 @@ public class ApiDocument
         }
 
         lines.Insert(insertIndex, string.Empty);
+        lines.Insert(insertIndex, $"[!INCLUDE [version-support-differs]({includeDirectory}/version-support-differs.md)]");
+        lines.Insert(insertIndex, string.Empty);
         lines.Insert(insertIndex, ":::zone-end");
         lines.Insert(insertIndex, GetIncludeLine(betaStatus, relativeIncludeDirectoryPath));
         lines.Insert(insertIndex, ":::zone pivot=\"graph-preview\"");
@@ -130,6 +132,7 @@ public class ApiDocument
         lines.Insert(insertIndex, ":::zone-end");
         lines.Insert(insertIndex, GetIncludeLine(v1Status, relativeIncludeDirectoryPath));
         lines.Insert(insertIndex, ":::zone pivot=\"graph-v1\"");
+
         if (!string.IsNullOrEmpty(lines[insertIndex - 1]))
         {
             lines.Insert(insertIndex, string.Empty);
@@ -182,6 +185,13 @@ public class ApiDocument
         // Walk forward to find the end of the zone pivots
         var firstEndIndex = lines.FindIndex(firstIncludeIndex, line => line.StartsWith(":::zone-end"));
         var secondEndIndex = lines.FindIndex(firstEndIndex + 1, line => line.StartsWith(":::zone-end"));
+
+        // Walk further forward to detect a version-support-differs include line
+        var versionSupportDiffersIndex = lines.FindIndex(secondEndIndex + 1, line => line.Contains("[!INCLUDE [version-support-differs]"));
+        if (versionSupportDiffersIndex != -1)
+        {
+            secondEndIndex = versionSupportDiffersIndex;
+        }
 
         lines.RemoveRange(firstIncludeIndex, secondEndIndex - firstIncludeIndex + 1);
 
