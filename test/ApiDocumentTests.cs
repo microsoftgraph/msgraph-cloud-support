@@ -97,6 +97,46 @@ public class ApiDocumentTests
     }
 
     [Fact]
+    public async Task NonPivotIncludesRemoveCorrectlyWithPivotsBefore()
+    {
+        // Arrange
+        var testFilePath = "../../../test-data/copilot-api-pivots-before-non-pivot-include.md";
+        var lines = new List<string>(await File.ReadAllLinesAsync(testFilePath));
+
+        // Act
+        var insertIndex = ApiDocument.RemoveAllIncludeLines(lines);
+
+        // Assert
+        Assert.Equal(30, insertIndex);
+        Assert.Equal(":::zone pivot=\"graph-preview\"", lines[17]);
+        Assert.Equal("[!INCLUDE [beta-disclaimer](../../includes/beta-disclaimer.md)]", lines[18]);
+        Assert.Equal(":::zone-end", lines[19]);
+        Assert.DoesNotContain(lines, line => line.Contains("[!INCLUDE [national-cloud-support]"));
+    }
+
+    [Fact]
+    public async Task NonPivotIncludesRemoveCorrectlyWithPivotsAfter()
+    {
+        // Arrange
+        var testFilePath = "../../../test-data/copilot-api-pivots-after-non-pivot-include.md";
+        var lines = new List<string>(await File.ReadAllLinesAsync(testFilePath));
+
+        // Act
+        var insertIndex = ApiDocument.RemoveAllIncludeLines(lines);
+
+        // Assert
+        Assert.Equal(26, insertIndex);
+        Assert.Equal(":::zone pivot=\"graph-v1\"", lines[45]);
+        Assert.Equal(string.Empty, lines[46]);
+        Assert.Equal("``` http", lines[47]);
+        Assert.Equal("GET https://graph.microsoft.com/v1.0/copilot/users/{userId}/onlineMeetings/{onlineMeetingId}/aiInsights/{aiInsightId}", lines[48]);
+        Assert.Equal("```", lines[49]);
+        Assert.Equal(string.Empty, lines[50]);
+        Assert.Equal(":::zone-end", lines[51]);
+        Assert.DoesNotContain(lines, line => line.Contains("[!INCLUDE [national-cloud-support]"));
+    }
+
+    [Fact]
     public async Task PivotIncludesRemoveCorrectly()
     {
         // Arrange
