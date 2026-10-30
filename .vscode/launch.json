@@ -68,6 +68,8 @@
         "C:/Source/Repos/m365copilot-docs-pr/docs/api",
         "--include-directory",
         "C:/Source/Repos/m365copilot-docs-pr/docs/api/includes",
+        "--excludes",
+        "C:/Source/Repos/m365copilot-docs-pr/docs/api/cloud.exclusions.json",
         "--out-file",
         "./unprocessedfiles.txt"
       ],
