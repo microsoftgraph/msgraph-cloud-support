@@ -70,8 +70,9 @@ public class ApiDocument
     public async Task AddOrUpdateIncludeLine(bool removeOldIncludes, string? includeDirectory = null)
     {
         var lines = new List<string>(await File.ReadAllLinesAsync(FilePath));
-        var relativeIncludeDirectoryPath = string.IsNullOrEmpty(includeDirectory) ?
-            "../../includes" : GetIncludePathRelativeToFile(FilePath, includeDirectory);
+        var relativeIncludeDirectoryPath = string.IsNullOrEmpty(includeDirectory)
+            ? "../../includes"
+            : GetIncludePathRelativeToFile(FilePath, includeDirectory);
 
         // Check if INCLUDE line already exists
         var includeLine = lines.FirstOrDefault(line => line.Contains("[!INCLUDE [national-cloud-support]"));
