@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 using System.Text.Json;
+using CheckCloudSupport.Extensions;
 
 namespace CheckCloudSupport.OpenAPI;
 
@@ -32,7 +33,7 @@ public static class OpenAPIOverrides
     /// <returns>The override path.</returns>
     public static string CheckForOverride(string originalPath, HttpMethod? method)
     {
-        var apiOverride = overrides?.SingleOrDefault(o => string.Compare(o.ApiPath?.ToLower(), originalPath.ToLower()) == 0);
+        var apiOverride = overrides?.SingleOrDefault(o => PathsMatch(o.ApiPath, originalPath));
         if (!string.IsNullOrEmpty(apiOverride?.Operation) &&
             method != null &&
             string.Compare(apiOverride.Operation, method.Method, StringComparison.OrdinalIgnoreCase) != 0)
@@ -69,6 +70,20 @@ public static class OpenAPIOverrides
     {
         return cloudExclusions?.Any(e => string.Compare(e.FileName, fileName, StringComparison.InvariantCultureIgnoreCase) == 0 &&
             string.Compare(e.Cloud, cloud, StringComparison.InvariantCultureIgnoreCase) == 0) ?? false;
+    }
+
+    private static bool PathsMatch(string? overridePath, string apiPath)
+    {
+        if (overridePath == null)
+        {
+            return false;
+        }
+
+        var overrideSegments = overridePath.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var apiSegments = apiPath.Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        return overrideSegments.Length == apiSegments.Length &&
+            overrideSegments.Zip(apiSegments).All(s => s.First.IsEqualIgnoringCase(s.Second));
     }
 
     private static void LoadOverridesFromJson(string? jsonFile)
