@@ -6,19 +6,6 @@ namespace CheckCloudSupportTests;
 public class StringExtensionsTests
 {
     [Fact]
-    public void ParameterNormalizationSucceeds()
-    {
-        // Arrange
-        var path = "/identityGovernance/entitlementManagement/assignments/additionalAccess(accessPackageId='parameterValue',incompatibleAccessPackageId='parameterValue')";
-
-        // Act
-        var normalizedPath = path.NormalizeParameters();
-
-        // Assert
-        Assert.Equal("/identityGovernance/entitlementManagement/assignments/additionalAccess(accessPackageId='{accessPackageId}',incompatibleAccessPackageId='{incompatibleAccessPackageId}')", normalizedPath);
-    }
-
-    [Fact]
     public void OneDriveShortcutFixSucceeds()
     {
         // Arrange
@@ -207,5 +194,33 @@ The following example shows getting a collection of records for PSTN calls that 
         var compareTo = "getPstnCalls(fromDateTime='{fromDateTime}')";
 
         Assert.True(value.IsEqualIgnoringCase(compareTo));
+    }
+
+    [Theory]
+    [InlineData("getAllRecordings(userId='@userId',startDateTime=@startDateTime)", "getAllRecordings(userId='{userId}',startDateTime='{startDateTime}')", true)]
+    [InlineData("getAllRecordings(userId={userId},startDateTime={startDateTime})", "getAllRecordings(userId=@userId,startDateTime='@startDateTime')", true)]
+    [InlineData("GETALLRECORDINGS(USERID=@userId)", "getAllRecordings(userId='{userId}')", true)]
+    [InlineData("getAllRecordings(userId='{userId}')", "getAllTranscripts(userId='{userId}')", false)]
+    [InlineData("getAllRecordings(userId='{userId}')", "getAllRecordings(meetingOrganizerUserId='{meetingOrganizerUserId}')", false)]
+    [InlineData("getAllRecordings(userId='{userId}',startDateTime='{startDateTime}')", "getAllRecordings(startDateTime='{startDateTime}',userId='{userId}')", false)]
+    [InlineData("getAllRecordings(userId='{userId}')", "getAllRecordings(userId='{userId}',startDateTime='{startDateTime}')", false)]
+    public void IsEqualIgnoringCase_MatchesFunctionParameterVariations(string value, string compareTo, bool expected)
+    {
+        Assert.Equal(expected, value.IsEqualIgnoringCase(compareTo));
+    }
+
+    [Theory]
+    [InlineData("getAllRecordings(userId={userId},startDateTime={startDateTime})", "getAllRecordings(userId=*,startDateTime=*)")]
+    [InlineData("getAllRecordings(userId='{userId}',startDateTime='{startDateTime}')", "getAllRecordings(userId=*,startDateTime=*)")]
+    [InlineData("getAllRecordings(userId=@userId,startDateTime=@startDateTime)", "getAllRecordings(userId=*,startDateTime=*)")]
+    [InlineData("getAllRecordings(userId='@userId',startDateTime=@startDateTime)", "getAllRecordings(userId=*,startDateTime=*)")]
+    [InlineData("getAllRecordings(userId = '{userId}' , startDateTime = @startDateTime)", "getAllRecordings(userId=*,startDateTime=*)")]
+    [InlineData("microsoft.graph.getUsage()", "microsoft.graph.getUsage()")]
+    [InlineData("getByIds('{id}')", "getByIds(*)")]
+    [InlineData("messages", "messages")]
+    [InlineData("{user-id}", "{user-id}")]
+    public void CanonicalizeFunctionSegment_NormalizesParameterValues(string segment, string expected)
+    {
+        Assert.Equal(expected, segment.CanonicalizeFunctionSegment());
     }
 }

@@ -49,6 +49,22 @@ public class OpenAPIOverridesTests
         Assert.Equal("/places/{id}/graph.room", result);
     }
 
+    [Theory]
+    [InlineData("/identityGovernance/entitlementManagement/subjects(objectId={objectId})")]
+    [InlineData("/identityGovernance/entitlementManagement/subjects(objectId='@objectId')")]
+    public void CheckForOverride_MatchesFunctionParameterVariations(string path)
+    {
+        var result = OpenAPIOverrides.CheckForOverride(path, HttpMethod.Get);
+        Assert.Equal("/identityGovernance/entitlementManagement/subjects(objectId='{objectId}')/subject", result);
+    }
+
+    [Fact]
+    public void CheckForOverride_DoesNotMatchPathPrefix()
+    {
+        var result = OpenAPIOverrides.CheckForOverride("/places/{id}/checkIns", HttpMethod.Get);
+        Assert.Equal("/places/{id}/checkIns", result);
+    }
+
     [Fact]
     public void CheckIfCloudExcluded_TrueWhenPathMethodCloudMatch()
     {

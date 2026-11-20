@@ -7,5 +7,9 @@
   {
     "apiPath": "/sites/{id}/pages/microsoft.graph.sitePage",
     "overridePath": "/sites/{id}/pages"
+  },
+  {
+    "apiPath": "/identityGovernance/entitlementManagement/subjects(objectId='{objectId}')",
+    "overridePath": "/identityGovernance/entitlementManagement/subjects(objectId='{objectId}')/subject"
   }
 ]

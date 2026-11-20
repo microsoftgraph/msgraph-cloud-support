@@ -43,45 +43,42 @@ public static partial class StringExtensions
     }
 
     /// <summary>
-    /// Normalizes parameter names and values in API paths.
+    /// Converts a function path segment into a canonical form for comparison by
+    /// replacing every parameter value with a common placeholder token.
     /// </summary>
-    /// <param name="path">The API path to normalize.</param>
-    /// <returns>The normalized API path.</returns>
-    public static string NormalizeParameters(this string path)
+    /// <param name="segment">The path segment to canonicalize.</param>
+    /// <returns>
+    /// The canonical form, e.g. <c>getAllRecordings(userId=*,startDateTime=*)</c>,
+    /// or the original segment if it is not a function segment.
+    /// </returns>
+    /// <remarks>
+    /// Function parameter values are formatted inconsistently in docs and OpenAPI
+    /// ({x}, '{x}', @x, '@x'), so only the function name and parameter names are
+    /// significant.
+    /// </remarks>
+    public static string CanonicalizeFunctionSegment(this string segment)
     {
-        var newPath = path;
-
-        // Extract parameters if present
-        var parameterListMatches = ParameterListRegex().Matches(path);
-
-        foreach (var parameterListMatch in parameterListMatches.ToList())
+        var match = FunctionSegmentRegex().Match(segment);
+        if (!match.Success)
         {
-            var parameterList = parameterListMatch.Groups[1].Value;
-
-            var parameterValuePairMatches = ParameterValuePairRegex().Matches(parameterList);
-
-            var parameters = new List<string>();
-
-            foreach (var parameterValuePairMatch in parameterValuePairMatches.ToList())
-            {
-                var parameterName = parameterValuePairMatch.Groups.GetValueOrDefault("param")?.Value;
-                var valueName = parameterValuePairMatch.Groups.GetValueOrDefault("value")?.Value;
-
-                if (!string.IsNullOrEmpty(valueName) && valueName.StartsWith('@'))
-                {
-                    parameters.Add($"{parameterName}='@{parameterName}'");
-                }
-                else
-                {
-                    parameters.Add($"{parameterName}='{{{parameterName}}}'");
-                }
-            }
-
-            var newParameterList = string.Join(',', parameters);
-            newPath = newPath.Replace(parameterList, newParameterList);
+            return segment;
         }
 
-        return newPath;
+        var parameterList = match.Groups["params"].Value;
+        if (string.IsNullOrWhiteSpace(parameterList))
+        {
+            return $"{match.Groups["name"].Value}()";
+        }
+
+        var parameters = parameterList
+            .Split(',', StringSplitOptions.TrimEntries)
+            .Select(p =>
+            {
+                var equalsIndex = p.IndexOf('=');
+                return equalsIndex < 0 ? "*" : $"{p[..equalsIndex].Trim()}=*";
+            });
+
+        return $"{match.Groups["name"].Value}({string.Join(',', parameters)})";
     }
 
     /// <summary>
@@ -197,15 +194,15 @@ public static partial class StringExtensions
     {
         int compareValue = string.Compare(value, compareTo, StringComparison.InvariantCultureIgnoreCase);
 
-        // Handle inconsistent formatting for function parameters in OpenAPI
-        // Sometimes value placeholders are like '{value}',
-        // Sometimes just like {value}
-        if (compareValue != 0 && value.Contains('(') && value.Contains('{') && compareTo.Contains('(') && compareTo.Contains('{'))
+        // Function parameter values are formatted inconsistently across docs
+        // and OpenAPI ({value}, '{value}', @value, '@value'), so compare only
+        // the function and parameter names
+        if (compareValue != 0 && value.Contains('(') && compareTo.Contains('('))
         {
-            var pattern = $"^{compareTo.Replace("'", "'?").Replace("(", "\\(").Replace(")", "\\)")}$";
-            var regex = new Regex(pattern, RegexOptions.IgnoreCase);
-            var isMatch = regex.IsMatch(value);
-            return isMatch;
+            return string.Equals(
+                value.CanonicalizeFunctionSegment(),
+                compareTo.CanonicalizeFunctionSegment(),
+                StringComparison.InvariantCultureIgnoreCase);
         }
 
         return compareValue == 0;
@@ -214,11 +211,8 @@ public static partial class StringExtensions
     [GeneratedRegex("\\/{[^{}]*id[^{}]*}", RegexOptions.IgnoreCase)]
     private static partial Regex IdSegmentRegex();
 
-    [GeneratedRegex("\\(((?>\\w*='?\\{?[\\w@-]*\\}?'?,?)+)\\)")]
-    private static partial Regex ParameterListRegex();
-
-    [GeneratedRegex("(?<param>\\w*)='?(?<value>\\{?[\\w@-]*\\}?)'?")]
-    private static partial Regex ParameterValuePairRegex();
+    [GeneratedRegex("^(?<name>[^()]+)\\((?<params>[^()]*)\\)$")]
+    private static partial Regex FunctionSegmentRegex();
 
     [GeneratedRegex("^\\/users\\/{id}\\/drive\\/")]
     private static partial Regex UsersDriveRegex();

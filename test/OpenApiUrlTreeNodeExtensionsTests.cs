@@ -86,6 +86,49 @@ public class OpenApiUrlTreeNodeExtensionsTests
         Assert.Null(node);
     }
 
+    [Theory]
+    // OpenAPI {x}; docs '{x}'
+    [InlineData("GET /reports/getEmailActivityUserDetail(date='{date}')", "getEmailActivityUserDetail(date={date})")]
+    // OpenAPI '{x}' on a key-as-segment; docs {x}
+    [InlineData("GET /applications(appId={appId})", "applications(appId='{appId}')")]
+    // OpenAPI mixed '{x}' and {x}; docs with quoting reversed
+    [InlineData("GET /reports/getUserArchivedPrintJobs(userId={userId},startDateTime='{startDateTime}',endDateTime='{endDateTime}')", "getUserArchivedPrintJobs(userId='{userId}',startDateTime={startDateTime},endDateTime={endDateTime})")]
+    // OpenAPI mixed '@x' and @x; docs {x}
+    [InlineData("GET /users/{usersId}/adhocCalls/getAllRecordings(userId={userId},startDateTime={startDateTime},endDateTime={endDateTime})", "getAllRecordings(userId='@userId',startDateTime=@startDateTime,endDateTime=@endDateTime)")]
+    // OpenAPI mixed '@x' and @x; docs @x with quoting reversed
+    [InlineData("GET /users/{usersId}/adhocCalls/getAllRecordings(userId=@userId,startDateTime='@startDateTime',endDateTime='@endDateTime')", "getAllRecordings(userId='@userId',startDateTime=@startDateTime,endDateTime=@endDateTime)")]
+    // OpenAPI '@x'; docs '{x}'
+    [InlineData("GET /teams/{team-id}/primaryChannel/doesUserHaveAccess(userId='{userId}',tenantId='{tenantId}',userPrincipalName='{userPrincipalName}')", "doesUserHaveAccess(userId='@userId',tenantId='@tenantId',userPrincipalName='@userPrincipalName')")]
+    // OpenAPI mixed '{x}' and '@x'; docs {x}
+    [InlineData("GET /copilot/reports/getMicrosoft365CopilotUserCountTrend(period={period},version={version})", "getMicrosoft365CopilotUserCountTrend(period='{period}',version='@version')")]
+    // Chained functions; OpenAPI has image() overloads with 1, 2, and 3 parameters
+    [InlineData("GET /drives/{drive-id}/items/{item-id}/workbook/worksheets/{id}/charts/item(name={name})/image(width={width},height={height})", "image(width={width},height={height})")]
+    public async Task GetNodeByPath_MatchesFunctionVariations(string httpLine, string expectedSegment)
+    {
+        /**
+         * This test ensures that the GetNodeByPath method correctly matches function variations
+         * with parentheses and parameters in the path. Functions are documented inconsistently in
+         * Graph documentation - sometimes placeholders are wrapped with curly braces, sometimes
+         * preceded by @, and sometimes surrounded by single-quotes. This is complicated further
+         * by the fact that they are formatted inconsistently in the OpenAPI specification itself.
+         */
+        var settings = new OpenApiReaderSettings();
+        settings.AddYamlReader();
+
+        var tree = OpenApiUrlTreeNode.Create();
+
+        using var stream = File.OpenRead("../../../test-data/openapi-functions.yml");
+        var loadResult = await OpenApiDocument.LoadAsync(stream, settings: settings);
+        Assert.NotNull(loadResult.Document);
+        tree.Attach(loadResult.Document!, "Global");
+
+        var operation = BuildOperation(httpLine);
+
+        var node = tree.GetNodeByPath(operation, "microsoft.graph");
+        Assert.NotNull(node);
+        Assert.Equal(expectedSegment, node!.Segment);
+    }
+
     [Fact]
     public async Task GetCloudSupportStatus_ReturnsGlobalWhenOnlyGlobal()
     {

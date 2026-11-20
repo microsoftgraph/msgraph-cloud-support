@@ -60,7 +60,6 @@ public class ApiOperation
         operation.Path = parts[1]
             .MakePathRelativeToVersion()
             .NormalizeIdSegments()
-            .NormalizeParameters()
             .FixUserDrivePath()
             .FixDriveShortcut()
             .FixDriveShareId()
